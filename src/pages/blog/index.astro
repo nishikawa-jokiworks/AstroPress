@@ -1,0 +1,55 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Paginate from '../../compornents/Paginate.astro';
+const pageTitle = 'Blog Archive';
+const pageDescription = 'Blog Archive です。';
+
+//ここまで全ページ基本必要
+export async function getStaticPaths() {
+    //ルーターパスのため
+    //Blog取得
+    const restApiEndPoint = 'posts';
+    const perPage = 12;//デフォルト10
+    const baseApiUrl = import.meta.env.PUBLIC_API_URL;
+    //&_embedを指定でサムネイルのURLとか取れるので。
+    const apiUrl = baseApiUrl + restApiEndPoint + '?' + 'per_page=' + perPage + '&_embed';
+    const res = await fetch(apiUrl);
+    const total = await res.headers.get('x-wp-totalpages')
+    //console.log('total:'+total);
+    
+    // 該当するパラーメータ分出力
+    //ページ数なので最大ページ数分配列を生成
+    return [...Array(Number(total))].flatMap((param, index) => (
+        [
+            {
+                params: {page: index + 1},
+            }
+        ]
+    ))
+}
+
+//Endpointを指定　投稿はposts
+const restApiEndPoint = 'posts';
+const baseApiUrl = import.meta.env.PUBLIC_API_URL;
+//&_embedを指定でサムネイルのURLとか取れるので。
+const apiUrl = baseApiUrl + restApiEndPoint + '?' + '&_embed';
+
+const res = await fetch(apiUrl); //RestAPI取得
+const posts = await res.json();//ここ忘れがち。Jsonにコンバートしないとね。
+let total;
+total = await res.headers.get('x-wp-totalpages') ?? 0;
+//console.log('Total:'+total);
+---
+<Layout title={pageTitle} description={pageDescription}>
+	<h1 class=" text-lg font-serif font-bold">AstroPress</h1>
+	<ul>
+		{
+			posts.map((post:any) => (
+				<li>{post.title.rendered}</li>
+			))
+			}
+	</ul>
+	<div>
+		<Paginate pages={total} currentPage="1" directory="/blog" />
+	</div>
+</Layout>

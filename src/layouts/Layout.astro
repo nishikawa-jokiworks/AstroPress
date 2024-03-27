@@ -1,0 +1,29 @@
+---
+//Layoutの雛形
+import BaseHead from "../compornents/BaseHead.astro";
+import Header from "../compornents/Header.astro";
+import Footer from "../compornents/Footer.astro";
+import {SITE_TITLE} from '../consts';
+
+const { title, description, pubDate, updatedDate, image } = Astro.props;
+---
+<html lang="ja">
+    <head >
+        <BaseHead title={title +' | '+ SITE_TITLE} description={description} image={image} pubDate={pubDate} updateDate={updatedDate} />
+    </head>
+    <body>
+        <Header />
+        <main class="lg:max-w-7xl md:max-w-5xl m-auto">
+            <slot/>
+        </main>
+
+        <Footer />
+    </body>
+</html>
+<style>
+</style>
+<script >
+    //PC Header Menu の　SubMenu開閉用//
+    import '../js/pcTopMenu.js';
+    import '../js/hamburgerMenu.js';
+</script>

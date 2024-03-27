@@ -1,0 +1,56 @@
+---
+import HeaderMenuLinkA from "./HeaderMenuLinkA.astro";
+export interface headerMenuLinkChild{
+    id:number;
+	name:string;
+	url:string;
+}
+export interface headerMenuLink {
+	id:number;
+	name:string;
+	url?:string;
+    childLink?:headerMenuLinkChild[];
+}
+const linkList :headerMenuLink[] =[
+	{id:1 ,name:'Home',url:'/'},
+	{id:2 ,name:'About',url:'/about/'},
+    {id:3 ,name:'Contact',url:'/contact/'},
+    {id:4 ,name:'Blog',url:'#!',childLink:[
+        {id:5 ,name:'Archive All',url:'/blog'},
+        {id:7 ,name:'Technology',url:'/blog/tecnology'},
+        {id:8 ,name:'Etc',url:'/blog/etc'},
+    ]},
+]
+
+---
+<ul class="md:flex">
+    {linkList.map((link) => (
+        // ...link を使って各要素を展開
+        <li class="lg:flex md:w-fit w-full p-2 md:p-3 relative" >
+          <HeaderMenuLinkA href={link.url} > 
+                {link.name}  {link.childLink &&
+                    <svg class="hidden lg:inline-block w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"></path>
+                    </svg>
+                }
+          </HeaderMenuLinkA>
+          {link.childLink && (
+            <div class="sub-menu lg:hidden md:absolute md:top-10  md:bg-slate-100 p-5 md:shadow md:-left-4 md:w-36">
+                <ul class="">
+                {link.childLink.map((childLink) => (
+                    <li >
+                    <HeaderMenuLinkA href={childLink.url} > 
+                        {childLink.name}
+                    </HeaderMenuLinkA>
+                    
+                    </li>
+                ))}
+                </ul>
+            </div>
+            
+          )}
+        </li>
+      ))
+      }
+
+</ul>

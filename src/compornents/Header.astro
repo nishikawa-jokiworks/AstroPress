@@ -1,0 +1,23 @@
+---
+import HeaderMenuLink from "../compornents/HeaderMenuLink.astro";
+import SpHamburger from "./SpHamburger.astro";
+import Image from "astro/components/Image.astro";
+
+import { SITE_TITLE } from "../consts";
+import LogoImg from '../assets/img/defaultOGP.jpg'
+---
+<header class="w-full bg-slate-200 min-h-14">
+    <div class="flex items-center justify-between lg:max-w-7xl md:max-w-5xl m-auto">
+        <div>
+            <Image class=" inline-block w-32 h-auto" src={LogoImg} alt="logo" densities={[1.5, 2]} />
+            {SITE_TITLE}
+    
+        </div>
+        <nav class="hidden md:block">
+            <HeaderMenuLink />
+        </nav>
+        <SpHamburger />
+
+    </div>
+    
+</header>

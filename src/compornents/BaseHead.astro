@@ -1,0 +1,76 @@
+---
+// global.cssを読み込む。
+import '../styles/global.css';
+//faviconはpublic直下に配置。
+import favicon from '../../public/favicon.ico'
+import defaultOgpImg from '../assets/img/defaultOGP.jpg'
+//Canonical URLを　astro.config.mjsのsiteから取得して生成
+//const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+//propsで渡される値を定義する。xxx?でなしでもOK
+interface Props {
+    /**
+     * title:ページタイトル
+     */
+	title: string;
+    /**
+     * description:ページ説明
+    */
+	description: string;
+    /**
+     * image:OGPに使用。なければデフォルトイメージ（assets/img/defaultOGP.jpg）を使用
+     */
+	image?: string;
+    /**
+     * pubDate:公開日 指定なしのときはBuildした日時
+     */
+	pubDate?: string;
+    /**
+     * updateDate:更新日指定なしのときはBuildした日時
+     */
+	updateDate?: string;
+}
+//pubDate,updateDateが指定されないときように
+const nowDate = new Date().toLocaleDateString('ja-JP');
+//propsで渡された値を代入。ないときの処理
+const {
+    title,
+    description,
+    image = undefined ?? defaultOgpImg.src ,
+    pubDate = undefined ?? nowDate,
+    updateDate = undefined ?? nowDate
+} = Astro.props;
+//imageがundefindのときはfavicon.svgを返す。
+
+---
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon"  type="image/vnd.microsoft.icon" href={favicon} />
+<meta name="generator" content={Astro.generator} />
+<meta http-equiv="Last-Modified" content={updateDate} />
+
+<!-- Canonical URL 
+<link rel="canonical" href={canonicalURL} />
+-->
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={Astro.url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={new URL(image, Astro.url)} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={Astro.url} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+<!-- robotにサイトマップを伝える -->
+<link rel="sitemap" href="/sitemap-index.xml">

@@ -1,0 +1,92 @@
+---
+import type { GetStaticPaths } from "astro";
+import { Image } from "astro:assets";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_SUB_TITLE } from '../../consts';
+import Layout from '../../layouts/Layout.astro';
+
+const { slug } = Astro.params;
+//console.log(slug);
+
+//Endpointを指定　投稿はposts
+const restApiEndPoint = 'posts';
+const baseApiUrl = import.meta.env.PUBLIC_API_URL;
+//&_embedを指定でサムネイルのURLとか取れるので。
+const apiUrl = baseApiUrl + restApiEndPoint + '?' + '&_embed';
+const slugUrl = apiUrl + '&slug=' + {slug};
+//console.log(slugUrl);
+
+const res = await fetch(`${apiUrl}&slug=${slug}`);
+//console.log(`${baseURL}slug=${slug}`);
+
+const [post] = await res.json();
+const renderedContent = post.content.rendered;
+//console.log(post);
+//const heroImg = post._embedded["wp:featuredmedia"]["0"].media_details.sizes.thumnail.source_url;
+//console.log(post._embedded["wp:featuredmedia"]["0"].media_details.sizes.full.source_url)
+
+export async function getStaticPaths() {
+  // 最初の100件を取得
+  //Endpointを指定　投稿はposts
+  const restApiEndPoint = 'posts';
+  const baseApiUrl = import.meta.env.PUBLIC_API_URL;
+  //&_embedを指定でサムネイルのURLとか取れるので。
+  const apiUrl = baseApiUrl + restApiEndPoint + '?' + 'per_page=100' + '&_embed';
+  const data = await fetch(apiUrl);
+  const posts = await data.json();
+
+  // 総ページ数を取得
+  const totalPages:number = Number(data.headers.get("x-wp-totalpages") || 0);
+  
+
+  // 100件を超える場合、ループ処理で残りの投稿を取得
+  if (totalPages > 1) {
+    for (let page = 2; page <= totalPages; page++) {
+      let apiUrlPage = apiUrl + '&page=' + page;
+      const data = await fetch(
+        apiUrlPage
+      );
+      const additionalPosts = await data.json();
+      posts.push(...additionalPosts);
+    }
+  }
+
+  return posts.map((post: any) => ({
+    params: { slug: decodeURI(post.slug) }, //日本語slug対応
+    props: { post: post },
+  }));
+}
+
+
+//日付形式変更
+function japaneseDate(date:string){
+	let jDate = new Date(date).toLocaleDateString('sv-SE')
+	return jDate
+}
+---
+
+<Layout
+	title={post.title.rendered} 
+	description=""
+	pubDate={new Date('2024/01/20 18:59:59')}
+	updatedDate={new Date()}
+	heroImage="favicon.svg"
+>
+
+
+    <section id="items" class=" flex flex-col justify-center items-center p-3">
+        <div id="hero" class="w-full h-44 bg-center bg-cover flex items-center relative before:absolute before:top-0 before:w-full before:h-full  before:bg-slate-900/50" >
+          <div class="max-w-3xl mx-auto bg-white bg-opacity-60 lg:bg-opacity-70 p-3 z-10">
+            <h1 class="font-serif font-semibold text-2xl mt-3 mb-5">{post.title.rendered} </h1>
+            <div><p class="  text-right mb-5">公開日：{japaneseDate(post.date)}</p></div>
+
+          </div>
+        </div>
+        <div class="max-w-3xl mt-5">
+            <Fragment set:html={renderedContent} />
+        </div>
+    </section>
+</Layout>
+<div id="modal-wrapper" class="hidden h-lvh w-lvw max-h-lvh  fixed top-0 left-0 bg-black bg-opacity-80 overflow-hidden  justify-center align-middle items-center md:p-10 p-3 transition duration-300 ease"></div>
+
+
+

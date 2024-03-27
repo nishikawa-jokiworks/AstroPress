@@ -1,0 +1,29 @@
+---
+import { type GetStaticPaths } from "astro";
+const { pages, currentPage ,directory } = Astro.props as { pages: number, currentPage: number ,directory:string };
+// pagesから１刻み１はじめの配列を作成
+function getPagesTotal() {
+  // pagesから１刻み１はじめの配列を作成
+  const pagesTotal = [...Array(Number(pages)).keys()].map(i => ++i);
+  return pagesTotal;
+}
+
+const pagesTotal = getPagesTotal();
+
+---
+
+<nav class=" w-lvw md:flex md:justify-center">
+  <ul class="flex overflow-x-auto">
+    { pagesTotal.map((page:any) => (
+      <li class=" flex-none m-3 md:p-3 p-2 border border-solid">
+        <a class:list={[{ 'is-active': page === +currentPage }]} href={`${directory}/page/${page}`}>{(page).toString()}</a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+ .is-active{
+  font-weight: bold;
+ }
+</style>

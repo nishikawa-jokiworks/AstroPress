@@ -1,0 +1,14 @@
+---
+import HeaderMenuLink from "./HeaderMenuLink.astro";
+
+---
+
+<div id="slide-menu-bar" class="md:hidden h-full w-full fixed top-0 left-0 z-20 bg-gray-300 bg-opacity-50 transition duration-300 ease -translate-x-full">
+    <div class="slideMenuContainer h-full w-3/4 bg-white opacity-100 absolute left-0 flex flex-col  justify-between p-8 pt-20 pb-20 text-slate-600 duration-1000">
+        <div><h4>Menuです</h4></div>
+
+        <div class="flex flex-col">
+            <HeaderMenuLink />
+        </div>
+    </div>
+</div>

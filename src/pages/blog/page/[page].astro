@@ -1,0 +1,106 @@
+---
+import { type GetStaticPaths } from "astro";
+import Paginate from "../../../compornents/Paginate.astro";
+
+import Layout from '../../../layouts/Layout.astro';
+const pageTitle = 'Blog Archive';
+const pageDescription = 'Blog Archive です。';
+
+const { page } = Astro.params;
+export async function getStaticPaths() {
+    //ルーターパスのため
+    //Blog取得
+    const restApiEndPoint = 'posts';
+    const perPage = 12;//デフォルト10
+    const baseApiUrl = import.meta.env.PUBLIC_API_URL;
+    //&_embedを指定でサムネイルのURLとか取れるので。
+    const apiUrl = baseApiUrl + restApiEndPoint + '?' + 'per_page=' + perPage + '&_embed';
+    const res = await fetch(apiUrl);
+    const total = await res.headers.get('x-wp-totalpages')
+    //console.log('total:'+total);
+    
+    // 該当するパラーメータ分出力
+    //ページ数なので最大ページ数分配列を生成
+    return [...Array(Number(total))].flatMap((param, index) => (
+        [
+            {
+                params: {page: index + 1},
+            }
+        ]
+    ))
+}
+
+//ここから業績表示
+//業務実績取得
+const restApiEndPoint = 'posts';
+const baseApiUrl = import.meta.env.PUBLIC_API_URL;
+const perPage = 12;//デフォルト10
+
+//&_embedを指定でサムネイルのURLとか取れるので。
+const apiUrl = baseApiUrl + restApiEndPoint + '?' + 'per_page=' + perPage + '&page=' + page + '&_embed';
+//console.log('url:' + url);
+const resWorks = await fetch(apiUrl);
+const posts = await resWorks.json();
+//console.log(posts);
+
+const total = await resWorks.headers.get('x-wp-totalpages')
+//console.log('Total:'+total);
+
+
+//日付形式変更
+function japaneseDate(date:string){
+	let jDate = new Date(date).toLocaleDateString('sv-SE')
+	return jDate
+}
+
+function textLimit(str:string){
+	const len=22;//文字数（半角）
+	if(str.length > len){
+		return str.substring(0,len) + '…' ;
+	}else{
+		return str
+	}
+}
+---
+<Layout
+	title={`${pageTitle} ${page}ページ`}
+	description={`${pageDescription} ${page}ページ`}
+	pubDate={new Date('2024/01/20 18:59:59')}
+	updatedDate={new Date()}
+	
+>
+    <section id="items" class=" flex flex-col justify-center items-center align-middle p-3">
+        <div class="">
+            <h1 class="text-lg font-serif mb-5">{pageTitle} {page}ページ</h1>
+        </div>
+        <div class="wrapper w-full flex flex-col items-center">
+            <div class="md:flex md:flex-wrap">
+                {
+                    posts.map((post:any) => (
+                    <div class="md:w-1/3 ">
+                        <div class="w-full p-2 flex justify-between flex-col h-full">
+                            <a href={`/blog/${post.slug}`}>
+                                <h3 class="mb-2 text-lg tracking-tight text-gray-900 ">{textLimit(post.title.rendered)}</h3>
+                            </a>
+                            <div class="flex justify-end">
+                                <a href={`/blog/${post.slug}`} class=" right-0 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-slate-800 bg-slate-300 rounded-lg hover:bg-slate-100 focus:ring-4 focus:outline-none focus:ring-blue-300 " title={'記事'+post.title + 'へのリンク'}>
+                                詳しく読む
+                                <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                </svg>
+                                </a>
+                            </div>
+                            
+                        </div>
+				    </div>
+        
+                    ))
+                }
+            </div>
+            <div>
+                <Paginate pages={total} currentPage={page} directory="/blog" />
+            </div>
+
+        </div>
+    </section>
+</Layout>

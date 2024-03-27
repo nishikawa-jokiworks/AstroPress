@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+const pageTitle = 'TopPage';
+const pageDescription = 'Top Page です。';
+//ここまで全ページ基本必要
+
+//Endpointを指定　投稿はposts
+const restApiEndPoint = 'posts';
+const baseApiUrl = import.meta.env.PUBLIC_API_URL;
+//&_embedを指定でサムネイルのURLとか取れるので。
+const apiUrl = baseApiUrl + restApiEndPoint + '?' + '&_embed';
+
+const res = await fetch(apiUrl); //RestAPI取得
+const posts = await res.json();//ここ忘れがち。Jsonにコンバートしないとね。
+---
+<Layout title={pageTitle} description={pageDescription}>
+	<h1 class=" text-lg font-serif font-bold">AstroPress</h1>
+	<ul>
+		{
+			posts.map((post:any) => (
+				<li>{post.title.rendered}</li>
+			))
+			}
+	</ul>
+</Layout>
